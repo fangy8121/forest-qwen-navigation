@@ -1,0 +1,15 @@
+defaults:
+  - forest_lower
+  - _self_
+executor: stable_spline
+output: outputs/forest_vln/stable_spline/continuous/runs
+task:
+  control_mode: trajectory
+  tracking_acceleration_limit: 0.65
+lower:
+  acceleration_fraction: 0.6
+  jerk_fraction: 0.65
+spline:
+  activation_lead: 0.4
+  candidate_max_age: 0.8
+  process_worker: true

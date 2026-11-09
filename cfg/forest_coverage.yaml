@@ -1,0 +1,174 @@
+defaults:
+  - forest_stable_spline
+  - _self_
+mode: native_forest_qwen_s_coverage_v2
+# Everything from the sim bring-up lives in one folder: maps/, runs/, hydra/.
+output: outputs/01_森林巡检仿真跑通/runs
+hydra:
+  run:
+    dir: outputs/01_森林巡检仿真跑通/hydra/${now:%Y-%m-%d_%H-%M-%S}
+max_seconds: 3600.
+task:
+  # Hard cap on the ACTUAL speed (execution checks fail the run above it). The
+  # commanded cruise limit is local.speed_limit = 1.5; equal values left no room
+  # for tracking overshoot (run 99ccbd18: 1.003 m/s ended the run).
+  flight:
+    max_speed: 1.8
+  # One vehicle uses CPU PhysX; reserve CUDA memory for the 4B vision model.
+  sim:
+    device: cpu
+    use_gpu: false
+    use_gpu_pipeline: false
+  env:
+    max_episode_length: 400000
+  # Under-canopy flight: mount the MID-360 upright (elevation -7..+52 deg) to see
+  # branches above. The inherited forest_subgoal_downward_lidar roll-180 mount
+  # (-52..+7 deg) leaves the space above the vehicle unobserved.
+  lidar:
+    mount_quaternion: [1.0, 0.0, 0.0, 0.0]
+    # Real MID-360 range (as in catkin_ws). Upright, its lowest ray (-7 deg)
+    # meets the ground ~17.5 m ahead from 2 m AGL; at 15 m it never did.
+    max_range: 40.0
+    # Emulated M300 RTK downward vision/ToF: a cone of rays around straight
+    # down from the LiDAR origin; the upright MID-360 never sees under the body.
+    downward:
+      rays: 300
+      half_angle_deg: 60.
+      max_range: 10.
+  scene:
+    map_dir: outputs/01_森林巡检仿真跑通/maps
+    map_id: train/006
+coverage:
+  scene_kind: native
+  instruction: 沿S形逐条巡检整个树林，在已确认的行末进入相邻未巡通道反向巡检，补齐遗漏，完成后返回起点并停稳。
+  # Public initial state only; no route, row count or endpoints enter the mission.
+  home: null
+  initial_yaw: null
+  # Public operator job rectangle only; tree rows and routes stay unknown.
+  work_area: map_bounds
+  operating_bounds: [0., 125., -15., 55.]
+  height_bounds: [-5., 20.]
+  # Matches the map start (2.5 m AGL): no forced descent right after take-off.
+  desired_agl: 2.5
+  agl_bounds: [1.5, 3.5]
+  row_gap_bound: 7.
+  stem_gap_bound: 5.5
+  command_file: null
+  command_schedule: []
+  policy: qwen
+  goal_timeout: 120.
+  no_motion_seconds: 25.
+  # Moving but not 0.5 m closer to the goal for this long ends the goal as
+  # blocked (run a0a40f7f shuttled 200 s in a dead-end pocket before failing).
+  no_progress_seconds: 20.
+  # Restore the recovery budget after this many consecutive completed goals.
+  recovery_refill_goals: 5
+  # Sim stand-in for the M300's own AGL measurement: ground heights from the
+  # map's known terrain; the LiDAR still does all obstacle checks.
+  terrain_source: truth
+  # Like catkin_ws: where observed ground is missing, hold the current height
+  # (only used with terrain_source: observed).
+  ground_fallback: hold_current
+  # Change height by at most 0.15 m per metre, so the space a climb or descent
+  # enters near the vehicle has been observed from farther away.
+  max_climb_slope: 0.15
+  # Fail when covered length, corridor count and confirmed ends have not grown
+  # for this long (one aisle takes ~270 s; run fd5c0103 looped for 1745 s).
+  coverage_stall_seconds: 600.
+  max_decisions: 256
+  max_rejections: 5
+  max_recoveries: 3
+  max_bootstrap_observations: 32
+  # Qwen picks one lettered point on two images (overview + local BEV) from a
+  # short text; task-order pruning is only logged as a reference. legacy: the
+  # previous single image, JSON state and rule-pruned candidates.
+  decision_input: point_choice
+  # Decision bench (outputs/03_Qwen点选决策/测试集): facts about each candidate's target aisle
+  # and the global image alone, 94.5% vs 72.7% for two images without facts.
+  # The BEV is still drawn into each decision folder for the record.
+  decision_facts: true
+  decision_images: global
+  # Ask each choice in 3 rotated candidate orders and sum the letter
+  # probabilities: Qwen favours the letter A (21 of 33 wrong answers on the
+  # bench); summed over 3 orders aisle changes went 29/33 -> 33/33.
+  decision_orders: 3
+viewer:
+  follow_drone: true
+  follow_heading: true
+  render_hz: 15.
+  keep_open: false
+  keep_open_seconds: null
+  capture_frames: false
+lower:
+  # A stale observation does not by itself make a stop uncertified when the
+  # actual and reference speeds are at most this (brake sweeps ~mm).
+  stale_rest_speed: 0.05
+  stop_dwell: 1.0
+  # Brake when the map is 0.32 s old (max_observation_age 0.4 below). The sim
+  # runs ~0.75x real time, so wall-clock age alone reached 0.26-0.28 s and
+  # forced 40 brakes (146 s) in run f830a311 at the old 0.25 s line.
+  observation_brake_reserve: 0.08
+  planning_clearance_reserve: 0.15
+  defer_gc_while_moving: false
+  defer_full_gc_while_moving: true
+  full_gc_interval: 30.0
+  # Brake only for a full GC this long after the last one; otherwise collect
+  # at the next handoff or recovery rest.
+  full_gc_force_interval: 180.0
+  trace_gc: true
+spline:
+  # Time each spline as reach-cruise-stop at this rate (half the 0.6 m/s^2
+  # planning limit), not 1.5x its length at uniform speed. Offline straight
+  # aisle replanning: 0.93 m/s instead of 0.49 m/s, no retimed candidates.
+  profile_acceleration: 0.3
+  # Splines and their stops stay within local.agl_band widened by this much
+  # (1.55-3.45 m above the ground): a climb handed on with its upward speed
+  # overshot the route band by 0.2 m (run 04376dbe: 3.58 m).
+  agl_band_margin: 0.1
+local:
+  # A 10 Hz MID-360 plus ~0.08 s processing; see observation_brake_reserve.
+  max_observation_age: 0.4
+  # Cruise speed of each local spline (see spline.profile_acceleration). Each
+  # spline stops at its route end, so the route length, not this limit, bounds
+  # the cruise: offline straight aisle 1.25 m/s here (0.93 m/s at 1.0, 4.0 m).
+  speed_limit: 1.5
+  # Longest routes the 5 m local snapshot allows (grid_forward <= 4.8 m); an
+  # 8 m window reached 1.42 m/s offline but needs a larger snapshot and ESDF,
+  # and each scan already takes 0.08 s of its 0.1 s (run 65aab932).
+  lookahead: 4.4
+  grid_forward: 4.8
+  route_persistence: true
+  # Replace a kept route once 3.4 m remain, before its stop-at-end spline brakes
+  # (2.6 m at 1.25 m/s). Kept until 0.5 m, every 4 m route ended in a slowdown
+  # to ~0.2 m/s and the aisles averaged 0.45 m/s (run 31e3924c).
+  route_refresh_remaining: 3.4
+  # Keep the lateral side chosen around one obstacle (world-fixed frame);
+  # prefer the side with larger observed clearance when the bypass starts.
+  side_commitment: true
+  # Orient the local A* window toward the target, not the oscillating yaw.
+  grid_heading: target
+  # Local route heights follow the slope-limited guidance, not 0.4 m cell levels.
+  max_climb_slope: 0.15
+  # New local routes stay this high above the ground (coverage.agl_bounds less
+  # 0.15 m for smoothing and tracking): climbs over obstacles reached 3.55 m
+  # (test/000 bac685bb, train/008 1102eec3). Above it a route goes around.
+  agl_band: [1.65, 3.35]
+  # Static forest: keep observed free space and hits for 30 s (raw scans 3 s).
+  # The upright LiDAR sees the lower body volume only from >2 m away.
+  memory_seconds: 30.
+  # Record free space along rays up to 15 m (default 6 m) so descents ahead are
+  # observed in advance by the upright LiDAR's -7 deg lowest rays.
+  evidence_range: 15.
+  # Count the column swept by a vertical take-off below the start as observed.
+  takeoff_column:
+    depth: 1.0
+    radius: 0.6
+qwen:
+  model: models/Qwen3.5-4B
+  python: .venvs/forest_qwen35/bin/python
+  device: cuda:0
+  max_input_tokens: 8192
+  max_new_tokens: 192
+  image_max_pixels: 262144
+  load_timeout: 180.
+  inference_timeout: 20.

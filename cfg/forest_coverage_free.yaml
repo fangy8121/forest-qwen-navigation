@@ -1,0 +1,7 @@
+# Scenario: full coverage in any order. Only "prefer uncovered aisles" applies,
+# so lane changes keep several inspectable aisles and Qwen chooses among them.
+defaults:
+  - forest_coverage
+  - _self_
+coverage:
+  instruction: 按任意顺序巡检全部通道，完成后返回起点并停稳。

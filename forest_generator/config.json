@@ -1,0 +1,81 @@
+{
+  "forest_size": [
+    100.0,
+    24.0
+  ],
+  "row_spacing": [
+    5.0,
+    0.36602,
+    2.0,
+    8.0
+  ],
+  "tree_spacing_gamma": [
+    5.6052,
+    0.48958,
+    1.5,
+    5.0
+  ],
+  "row_offset": [
+    0.0,
+    0.33567,
+    -0.5,
+    0.5
+  ],
+  "stem_diameter": [ 
+    0.6,
+    0.1,
+    0.3,
+    1.0
+  ],
+  "branch_count": [
+    3.0548,
+    5.9154,
+    0,
+    15
+  ],
+  "branch_angle": [
+    0.2022,
+    0.59182,
+    -1.57,
+    1.57
+  ],
+  "branch_length_gamma": [
+    10.8095,
+    0.30198,
+    1,
+    10
+  ],
+  "branch_height": [
+    4.7106,
+    0.97943,
+    0,
+    8
+  ],
+  "terrain": {
+    "frequency": 0.52,
+    "amplitude": 2.0,
+    "frequency2": 0.05,
+    "amplitude2": 8.0,
+    "offset": 23.0,
+    "slope_range": 0.2,
+    "resolution": 1.0
+  },
+  "flight_height": 2.0,
+  "difficulty": {
+    "easy": {"count": [1, 1], "diameter": [0.6, 0.7], "offset": [0.45, 0.65]},
+    "medium": {"count": [2, 3], "diameter": [0.6, 0.8], "offset": [0.35, 0.65]},
+    "hard": {"count": [3, 5], "diameter": [0.7, 0.9], "offset": [0.25, 0.55]}
+  },
+  "task_obstacles": {
+    "choice_diameter": [0.3, 0.4],
+    "fractions": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "diameter": 0.7,
+    "side_offset": 0.45
+  },
+  "insert_trees": [],
+  "parameter_source": "config-low.h"
+}

@@ -1,0 +1,22 @@
+defaults:
+  - forest_local
+  - _self_
+task:
+  scene:
+    source: offline
+    map_dir: outputs/forest_vln/executor_pilot/maps
+    map_id: diagnostic/000
+output: outputs/forest_vln/executor_pilot/runs
+mode: subgoal
+max_seconds: 40.
+realtime: true
+local:
+  ray_traversal: voxel_dda_v1
+  save_observation_window: true
+  connect_start: true
+  speed_limit: 0.5
+  align_before_motion: true
+  heading_max_rate: 0.4
+  heading_max_acceleration: 0.8
+pilot:
+  case: all

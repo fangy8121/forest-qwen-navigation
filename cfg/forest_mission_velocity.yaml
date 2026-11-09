@@ -1,0 +1,7 @@
+# Retain the control mode of the previous 40/40 observation ablation.
+defaults:
+  - forest_mission_sim
+  - _self_
+task:
+  control_mode: velocity
+output: outputs/forest_vln/isaac_loop/velocity_continuous/runs

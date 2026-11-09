@@ -1,0 +1,17 @@
+# Scenario: cross-row visit while inspecting aisle 2, then resume the S task.
+# Entering aisle 2 the vehicle heads -x (aisle 1 is flown +x), so "right"
+# points to higher lateral indices: two aisles to the right is aisle 4.
+defaults:
+  - forest_coverage
+  - _self_
+coverage:
+  command_schedule:
+    - command_id: visit_right_2
+      text: 先去右边隔一行的那条通道巡一遍，然后回来接着巡检
+      at: 0.0
+      min_speed: 0.1
+      min_corridors: 2
+      expected_intent: VISIT_CORRIDOR
+      expected_resume_after: true
+      expected_target_lateral_index: 4
+      expected_restored_intent: COVER

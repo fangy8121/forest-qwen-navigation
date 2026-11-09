@@ -1,0 +1,25 @@
+defaults:
+  - forest_mission_velocity
+  - _self_
+executor: lower
+output: outputs/forest_vln/executable_lower/continuous/runs
+max_seconds: 480.
+task:
+  env:
+    max_episode_length: 120000
+mission:
+  file: null
+lower:
+  map_window: [24., 20., 10.]
+  esdf:
+    enabled: true
+    resolution: 0.2
+    preferred_clearance: 1.5
+    clearance_weight: 0.35
+    max_voxels: 500000
+  acceleration_fraction: 0.8
+  jerk_fraction: 0.75
+  position_tolerance: 0.15
+  velocity_tolerance: 0.2
+  stop_timeout: 12.
+  fault_after_seconds: null

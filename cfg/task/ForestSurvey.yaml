@@ -1,0 +1,47 @@
+name: ForestSurvey
+defaults:
+  - /base/env_base@_here_
+  - /base/sim_base@_here_
+env:
+  num_envs: 1
+  max_episode_length: 30000
+sim:
+  dt: 0.01
+  substeps: 1
+  # 预先声明窗口所需字段；IsaacEnv 在显示窗口时设为 true，避免 Hydra 禁止新增键。
+  enable_scene_query_support: false
+drone_model:
+  name: Iris
+  controller: LeePositionController
+scene:
+  source: offline
+  map_dir: outputs/forest/maps
+  map_id: null  # 新地图：map_dir=outputs/forest/maps，map_id=hard/vertical/000000
+  split: null  # train / val / test；null 加载任意集合
+  route_mode: default  # 双模式预览：default/continuous 平滑 U 弯；stop 停稳转向
+  asset_dir: catkin_ws/src/survey_simulator/models/out_test
+  length: 12.0
+  width: 14.0
+  buffer: 4.0
+  height: ${task.flight.height}
+  task: random  # 新离线任务：lateral / vertical / choice / mixed；random 按索引选图
+flight:
+  height: 2.0  # 新离线地图：相对地面的采集高度
+  max_speed: 1.0
+  max_acceleration: 1.0
+  max_jerk: 4.0
+  max_yaw_rate: 1.0  # rad/s
+  max_yaw_acceleration: 2.0  # rad/s²
+  corner_distance: 1.5  # 有净空时局部弯道前后最多各 1.5 m
+  max_path_deviation: 0.3  # 参考曲线相对原路径的最大偏离，m
+  tracking_limit: 1.0
+  settle_seconds: 3.0
+  settle_speed: 0.15
+  settle_error: 0.15
+lidar:
+  omniperception_root: /home/fang/OmniPerception
+  hz: 10.0
+  max_range: 15.0
+  downsample: 5
+  mount_position: [0.0, 0.0, 0.15]
+  mount_quaternion: [1.0, 0.0, 0.0, 0.0]

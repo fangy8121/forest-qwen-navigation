@@ -1,0 +1,28 @@
+defaults:
+  - task: ForestSurvey
+  - _self_
+headless: true
+seed: 0
+sim: ${task.sim}
+env: ${task.env}
+viewer:
+  follow_start: true
+  resolution: [960, 720]
+  eye: [-4, -8, 5]
+  lookat: [1, 0, 2]
+task:
+  control_mode: velocity
+  scene:
+    map_id: hard/lateral/000000
+output: outputs/forest/eval/stage_a
+mode: baseline
+max_seconds: 120.
+history_seconds: 3.
+local:
+  hz: 10.
+  lookahead: 2.
+  speed_limit: 0.9
+  max_observation_age: 0.3
+  deadline: 0.1
+  no_progress_seconds: 15.
+realtime: true

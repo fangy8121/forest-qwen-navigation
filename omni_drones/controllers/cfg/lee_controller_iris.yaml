@@ -1,0 +1,6 @@
+# Iris 质量/惯量接近 OmniDrones Firefly，采用其已有 Lee 增益作为仿真起步值。
+# 这不是 M300 实机标定；必须继续按轨迹误差实测，不能据此宣称控制器已适配实机。
+position_gain: [6, 6, 6]
+velocity_gain: [4.7, 4.7, 4.7]
+attitude_gain: [3, 3, 0.15]
+angular_rate_gain: [0.52, 0.52, 0.18]

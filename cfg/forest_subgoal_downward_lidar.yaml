@@ -1,0 +1,10 @@
+# Information-coverage ablation in the existing ideal raycast simulator.
+# Roll the same MID-360 pattern by 180 deg: elevation [-7,+52] -> [-52,+7].
+# This does not model self-occlusion, mounting feasibility or real sensor noise.
+defaults:
+  - forest_subgoal
+  - _self_
+task:
+  lidar:
+    mount_quaternion: [0.0, 1.0, 0.0, 0.0]
+output: outputs/forest_vln/python_spline/lidar_ablation/runs

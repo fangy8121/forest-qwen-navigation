@@ -1,0 +1,7 @@
+# Isaac-only full p/v/a control comparison; observed-MID360 profile held fixed.
+defaults:
+  - forest_subgoal_downward_lidar
+  - _self_
+task:
+  control_mode: trajectory
+output: outputs/forest_vln/isaac_loop/position_reference/runs

@@ -1,0 +1,5 @@
+# 安装到 .venvs/forest_qwen35；复用现有 Torch，仿真仍使用原环境。
+transformers==5.17.0
+peft==0.20.0
+accelerate==1.15.0
+pillow>=10

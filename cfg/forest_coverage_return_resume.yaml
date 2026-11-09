@@ -1,0 +1,14 @@
+# Scenario: return home mid-mission, then resume the S task.
+defaults:
+  - forest_coverage
+  - _self_
+coverage:
+  command_schedule:
+    - command_id: return_then_resume
+      text: 立即返回起点，然后继续巡检
+      at: 0.0
+      min_speed: 0.1
+      min_corridors: 3
+      expected_intent: RETURN_HOME
+      expected_resume_after: true
+      expected_restored_intent: COVER

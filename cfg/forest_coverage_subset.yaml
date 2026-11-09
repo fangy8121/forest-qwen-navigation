@@ -1,0 +1,6 @@
+# Scenario: a non-S subset given in the initial instruction.
+defaults:
+  - forest_coverage
+  - _self_
+coverage:
+  instruction: 只巡检第1、3、5条通道，完成后返回起点并停稳。

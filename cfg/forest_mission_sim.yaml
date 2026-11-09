@@ -1,0 +1,10 @@
+# Continuous Isaac flight, using the already measured downward-pattern profile.
+defaults:
+  - forest_subgoal_sim
+  - _self_
+mode: mission
+output: outputs/forest_vln/isaac_loop/continuous/runs
+max_seconds: 240.
+mission:
+  goal_timeout_seconds: 60.
+  no_motion_seconds: 20.
